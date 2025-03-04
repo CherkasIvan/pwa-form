@@ -1,0 +1,24 @@
+<form [formGroup]="form">
+  <label>
+    Name:
+    <input formControlName="name" />
+  </label>
+  <label>
+    Select Option:
+    <select formControlName="selectOption">
+      <option value="option1">Option 1</option>
+      <option value="option2">Option 2</option>
+    </select>
+  </label>
+  <label>
+    <input type="checkbox" formControlName="agree" />
+    I Agree
+  </label>
+</form>
+<button (click)="checkCache()">Check Cache</button>
+
+<div class="modal-content">
+  <p>Do you want to load cached data?</p>
+  <button (click)="loadCachedData()">Yes</button>
+  <button (click)="clearCache()">No</button>
+</div>
