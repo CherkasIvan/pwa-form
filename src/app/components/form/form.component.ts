@@ -1,20 +1,39 @@
-import { NgIf } from '@angular/common';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzButtonModule } from 'ng-zorro-antd/button';
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormsModule,
+  FormGroup,
+  FormBuilder,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-form',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf],
+  imports: [
+    ReactiveFormsModule,
+    FormsModule,
+    NzModalModule,
+    NzFormModule,
+    NzInputModule,
+    NzSelectModule,
+    NzCheckboxModule,
+    NzButtonModule,
+  ],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss'],
 })
 export class FormComponent implements OnInit {
   form: FormGroup;
   cacheName = 'form-data-cache';
-  showModal = false;
+  isVisible = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private modal: NzModalService) {
     this.form = this.fb.group({
       name: [''],
       selectOption: ['option1'],
@@ -24,7 +43,7 @@ export class FormComponent implements OnInit {
 
   ngOnInit() {
     this.checkForCachedData();
-    this.form.valueChanges.subscribe((value) => {
+    this.form.valueChanges.subscribe((value: any) => {
       console.log('Form value changed:', value);
       this.saveData(value);
     });
@@ -37,13 +56,17 @@ export class FormComponent implements OnInit {
           if (response) {
             response.json().then((data) => {
               if (Object.keys(data).length > 0) {
-                this.showModal = true;
+                this.isVisible = true;
               }
             });
           }
         });
       });
     }
+  }
+
+  handleCancel(): void {
+    this.isVisible = true;
   }
 
   loadCachedData() {
@@ -56,7 +79,7 @@ export class FormComponent implements OnInit {
               console.log('Loaded data from cache:', event.data.payload);
               this.form.patchValue(event.data.payload);
             }
-            this.showModal = false;
+            this.isVisible = false;
           };
           console.log('Sending GET_FORM_DATA message to Service Worker...');
           registration.active?.postMessage(
@@ -75,7 +98,7 @@ export class FormComponent implements OnInit {
       caches.open(this.cacheName).then((cache) => {
         cache.delete('formData').then(() => {
           console.log('Cache cleared.');
-          this.showModal = false;
+          this.isVisible = false;
         });
       });
     }
@@ -109,7 +132,7 @@ export class FormComponent implements OnInit {
           .match('formData')
           .then((response) => {
             if (response) {
-              this.showModal = true;
+              this.isVisible = true;
               response.json().then((data) => {
                 console.log('Cached data:', data);
               });

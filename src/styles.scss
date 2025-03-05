@@ -1,1 +1,61 @@
-/* You can add global styles to this file, and also import other style files */
+@import "ng-zorro-antd/ng-zorro-antd.min.css";
+
+// Собственные стили
+nz-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+nz-form-item {
+  margin-bottom: 16px;
+}
+
+nz-form-label {
+  font-weight: bold;
+}
+
+nz-form-control {
+  input[nz-input] {
+    width: 100%;
+  }
+
+  nz-select {
+    width: 100%;
+  }
+
+  label[nz-checkbox] {
+    display: flex;
+    align-items: center;
+  }
+
+  button[nz-button] {
+    width: 100%;
+  }
+}
+
+// Стили для модального окна
+.nz-modal {
+  .ant-modal-content {
+    border-radius: 8px;
+  }
+
+  .ant-modal-header {
+    border-bottom: none;
+    text-align: center;
+  }
+
+  .ant-modal-title {
+    font-size: 24px;
+    font-weight: bold;
+  }
+
+  .ant-modal-footer {
+    display: flex;
+    justify-content: center;
+    border-top: none;
+  }
+}

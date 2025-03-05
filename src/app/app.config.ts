@@ -12,6 +12,13 @@ import en from '@angular/common/locales/en';
 import { FormsModule } from '@angular/forms';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideHttpClient } from '@angular/common/http';
+import { BrowserModule } from '@angular/platform-browser';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { NzSelectModule } from 'ng-zorro-antd/select';
 
 registerLocaleData(en);
 export const appConfig: ApplicationConfig = {
@@ -21,7 +28,16 @@ export const appConfig: ApplicationConfig = {
       enabled: true,
       registrationStrategy: 'registerWhenStable:30000',
     }),
-    importProvidersFrom(FormsModule),
+    importProvidersFrom(
+      FormsModule,
+      BrowserModule,
+      NzModalModule,
+      NzFormModule,
+      NzInputModule,
+      NzSelectModule,
+      NzCheckboxModule,
+      NzButtonModule
+    ),
     provideAnimationsAsync(),
     provideHttpClient(),
   ],
