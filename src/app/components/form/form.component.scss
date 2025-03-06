@@ -37,11 +37,17 @@ nz-form-control {
 .form-container {
   height: 100vh;
   width: 100vw;
-  padding: 15%;
+  padding: 5%;
   display: flex;
   flex-direction: column;
   row-gap: 20px;
   align-items: center;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  column-gap: 20px;
 }
 
 .select-container {

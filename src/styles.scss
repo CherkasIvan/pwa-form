@@ -37,8 +37,14 @@ nz-form-control {
   }
 }
 
-// Стили для модального окна
-.nz-modal {
+.ant-modal-body {
+  > * {
+    color: black;
+  }
+
+  .nz-modal {
+  }
+
   .ant-modal-content {
     border-radius: 8px;
   }
@@ -54,7 +60,7 @@ nz-form-control {
   }
 
   .ant-modal-footer {
-    display: flex;
+    display: none;
     justify-content: center;
     border-top: none;
   }

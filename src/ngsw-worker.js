@@ -27,7 +27,7 @@ self.addEventListener("message", (event) => {
       .open(cacheName)
       .then((cache) => {
         cache
-          .put("formData", new Response(JSON.stringify(formData)))
+          .put("/browser/formData", new Response(JSON.stringify(formData)))
           .then(() => {
             console.log("Form data saved to cache.");
           })
@@ -40,29 +40,28 @@ self.addEventListener("message", (event) => {
       });
   } else if (event.data && event.data.type === "GET_FORM_DATA") {
     console.log("Getting form data from cache.");
-    event.waitUntil(
-      caches
-        .open(cacheName)
-        .then((cache) => {
-          return cache
-            .match("formData")
-            .then((response) => {
-              return response ? response.json() : {};
-            })
-            .then((data) => {
-              console.log("Form data loaded from cache:", data);
-              event.ports[0].postMessage({
-                type: "FORM_DATA",
-                payload: data,
-              });
-            })
-            .catch((err) => {
-              console.error("Error getting form data from cache:", err);
-            });
-        })
-        .catch((err) => {
-          console.error("Error opening cache:", err);
-        })
-    );
+    caches
+      .open(cacheName)
+      .then((cache) => {
+        console.log("Cache instance:", cache);
+        return cache.match("/browser/formData").then((response) => {
+          if (response) {
+            return response.json();
+          } else {
+            console.log("No form data found in cache.");
+            return {};
+          }
+        });
+      })
+      .then((data) => {
+        console.log("Form data loaded from cache:", data);
+        event.ports[0].postMessage({
+          type: "FORM_DATA",
+          payload: data,
+        });
+      })
+      .catch((err) => {
+        console.error("Error getting form data from cache:", err);
+      });
   }
 });

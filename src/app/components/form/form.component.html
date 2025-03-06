@@ -7,7 +7,7 @@
       </nz-form-control>
     </nz-form-item>
 
-    <nz-form-item class="select-container">
+    <nz-form-item>
       <nz-form-label [nzFor]="'selectOption'">Select Option</nz-form-label>
       <nz-form-control>
         <nz-select formControlName="selectOption" id="selectOption">
@@ -23,9 +23,9 @@
       </nz-form-control>
     </nz-form-item>
 
-    <nz-form-item>
+    <nz-form-item *ngIf="cachedData">
       <nz-form-control>
-        <button nz-button nzType="primary" (click)="checkCache()">
+        <button nz-button nzType="primary" (click)="showModal()">
           Check Cache
         </button>
       </nz-form-control>
@@ -34,10 +34,25 @@
 
   <nz-modal
     [(nzVisible)]="isVisible"
-    nzTitle="Load Cached Data"
+    nzTitle="Cached Data"
     (nzOnCancel)="handleCancel()"
-    (nzOnOk)="loadCachedData()"
+    (nzOnOk)="handleOk()"
   >
-    <p>Do you want to load cached data?</p>
+    <ng-container *nzModalContent>
+      <div *ngIf="cachedData">
+        <p><strong>Cached Data:</strong></p>
+        <p>
+          <strong>{{ cachedData | json }}</strong>
+        </p>
+      </div>
+    </ng-container>
+    <div *nzModalFooter>
+      <button nz-button nzType="default" (click)="handleCancel()">
+        Clear cash
+      </button>
+      <button nz-button nzType="primary" (click)="handleOk()">
+        Submit data from cash
+      </button>
+    </div>
   </nz-modal>
 </div>
