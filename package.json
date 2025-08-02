@@ -1,11 +1,13 @@
 {
   "name": "pwa-table",
   "version": "0.0.0",
+  "homepage": "https://CherkasIvan.github.io/pwa-form",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "build:prod": "ng build --configuration=production",
+    "prebuild": "ng build --configuration=production --base-href https://CherkasIvan.github.io/pwa-form",
     "serve:prod": "npx http-server -p 8080 -c-1 dist/pwa-table/browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
