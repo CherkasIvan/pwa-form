@@ -1,24 +1,58 @@
-<form [formGroup]="form">
-  <label>
-    Name:
-    <input formControlName="name" />
-  </label>
-  <label>
-    Select Option:
-    <select formControlName="selectOption">
-      <option value="option1">Option 1</option>
-      <option value="option2">Option 2</option>
-    </select>
-  </label>
-  <label>
-    <input type="checkbox" formControlName="agree" />
-    I Agree
-  </label>
-</form>
-<button (click)="checkCache()">Check Cache</button>
+<div class="form-container">
+  <nz-form [formGroup]="form" nzLayout="vertical">
+    <nz-form-item>
+      <nz-form-label [nzFor]="'name'">Name</nz-form-label>
+      <nz-form-control>
+        <input nz-input formControlName="name" id="name" />
+      </nz-form-control>
+    </nz-form-item>
 
-<div class="modal-content">
-  <p>Do you want to load cached data?</p>
-  <button (click)="loadCachedData()">Yes</button>
-  <button (click)="clearCache()">No</button>
+    <nz-form-item>
+      <nz-form-label [nzFor]="'selectOption'">Select Option</nz-form-label>
+      <nz-form-control>
+        <nz-select formControlName="selectOption" id="selectOption">
+          <nz-option nzValue="option1" nzLabel="Option 1"></nz-option>
+          <nz-option nzValue="option2" nzLabel="Option 2"></nz-option>
+        </nz-select>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item>
+      <nz-form-control>
+        <label nz-checkbox formControlName="agree"> I Agree </label>
+      </nz-form-control>
+    </nz-form-item>
+
+    <nz-form-item *ngIf="cachedData">
+      <nz-form-control>
+        <button nz-button nzType="primary" (click)="showModal()">
+          Check Cache
+        </button>
+      </nz-form-control>
+    </nz-form-item>
+  </nz-form>
+
+  <nz-modal
+    [(nzVisible)]="isVisible"
+    nzTitle="Cached Data"
+    (nzOnCancel)="handleCancel()"
+    (nzOnOk)="handleOk()"
+  >
+    <ng-container *nzModalContent>
+      <div *ngIf="cachedData">
+        <p><strong>Cached Data:</strong></p>
+        <p>
+          <strong>{{ cachedData | json }}</strong>
+        </p>
+      </div>
+    </ng-container>
+    <div *nzModalFooter>
+      <button nz-button nzType="default" (click)="handleCancel()">
+        Clear cash
+      </button>
+      <button nz-button nzType="primary" (click)="handleOk()">
+        Submit data from cash
+      </button>
+    </div>
+  </nz-modal>
 </div>

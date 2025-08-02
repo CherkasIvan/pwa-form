@@ -5,6 +5,8 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:prod": "ng build --configuration=production",
+    "serve:prod": "npx http-server -p 8080 -c-1 dist/pwa-table/browser",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -19,7 +21,8 @@
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
     "@angular/service-worker": "^17.3.0",
-    "ng-zorro-antd": "^17.4.1",
+    "@ctrl/tinycolor": "^4.1.0",
+    "ng-zorro-antd": "^17.3.0",
     "ngx-build-plus": "^17.0.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",

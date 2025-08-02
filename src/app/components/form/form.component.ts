@@ -1,20 +1,45 @@
-import { NgIf } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzFormModule } from 'ng-zorro-antd/form';
+import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzCheckboxModule } from 'ng-zorro-antd/checkbox';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzModalModule } from 'ng-zorro-antd/modal';
+import { JsonPipe, NgIf } from '@angular/common';
+import { ChangeDetectorRef, NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-form',
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf],
+  imports: [
+    ReactiveFormsModule,
+    NzModalModule,
+    NzFormModule,
+    NzInputModule,
+    NzSelectModule,
+    NzCheckboxModule,
+    NzButtonModule,
+    NgIf,
+    JsonPipe,
+  ],
   templateUrl: './form.component.html',
   styleUrls: ['./form.component.scss'],
 })
 export class FormComponent implements OnInit {
   form: FormGroup;
   cacheName = 'form-data-cache';
-  showModal = false;
+  isVisible = false;
+  private isClearingCache = false;
+  cachedData: any = null;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private modal: NzModalService,
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef
+  ) {
     this.form = this.fb.group({
       name: [''],
       selectOption: ['option1'],
@@ -22,107 +47,139 @@ export class FormComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
-    this.checkForCachedData();
+  showModal(): void {
+    this.isVisible = true;
+  }
+
+  handleOk(): void {
+    console.log('Button ok clicked!');
+    this.loadCachedData();
+    this.isVisible = false;
+  }
+
+  handleCancel(): void {
+    console.log('Clearing form and removing cached data...');
+
+    // Сбрасываем форму
+    this.form.reset({
+      name: '',
+      selectOption: 'option1',
+      agree: false,
+    });
+
+    if ('caches' in window) {
+      caches
+        .open(this.cacheName)
+        .then((cache) => {
+          cache.delete('/browser/formData').then((wasDeleted) => {
+            if (wasDeleted) {
+              console.log(
+                'Object "/browser/formData" was successfully deleted.'
+              );
+            } else {
+              console.log(
+                'Object "/browser/formData" was not found in the cache.'
+              );
+            }
+
+            this.zone.run(() => {
+              this.cachedData = null;
+            });
+          });
+        })
+        .catch((err) => console.error('Error clearing cache:', err));
+    } else {
+      console.error('Caches API is not available in this environment.');
+    }
+
+    this.isVisible = false;
+  }
+
+  ngOnInit(): void {
+    this.checkCache();
     this.form.valueChanges.subscribe((value) => {
-      console.log('Form value changed:', value);
       this.saveData(value);
     });
   }
 
-  checkForCachedData() {
-    if ('serviceWorker' in navigator) {
-      caches.open(this.cacheName).then((cache) => {
-        cache.match('formData').then((response) => {
-          if (response) {
-            response.json().then((data) => {
-              if (Object.keys(data).length > 0) {
-                this.showModal = true;
-              }
-            });
-          }
-        });
-      });
-    }
-  }
-
-  loadCachedData() {
-    if (navigator.serviceWorker) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => {
-          const messageChannel = new MessageChannel();
-          messageChannel.port1.onmessage = (event) => {
-            if (event.data && event.data.type === 'FORM_DATA') {
-              console.log('Loaded data from cache:', event.data.payload);
-              this.form.patchValue(event.data.payload);
+  checkCache(): void {
+    console.log('Checking cache...');
+    if ('caches' in window) {
+      caches
+        .open(this.cacheName)
+        .then((cache) => {
+          cache.match('/browser/formData').then((response) => {
+            if (response) {
+              response.json().then((data) => {
+                this.cachedData = data;
+                console.log('Cached data found:', this.cachedData);
+                this.cdr.detectChanges();
+              });
+            } else {
+              console.log('No cached data found.');
+              this.cachedData = null;
+              this.cdr.detectChanges();
             }
-            this.showModal = false;
-          };
-          console.log('Sending GET_FORM_DATA message to Service Worker...');
-          registration.active?.postMessage(
-            {
-              type: 'GET_FORM_DATA',
-            },
-            [messageChannel.port2]
-          );
-        });
-      });
+          });
+        })
+        .catch((err) => console.error('Error opening cache:', err));
     }
   }
 
-  clearCache() {
-    if (navigator.serviceWorker) {
-      caches.open(this.cacheName).then((cache) => {
-        cache.delete('formData').then(() => {
-          console.log('Cache cleared.');
-          this.showModal = false;
-        });
-      });
+  // clearCache(): void {
+  //   if ('caches' in window) {
+  //     caches
+  //       .open(this.cacheName)
+  //       .then((cache) => {
+  //         cache.delete('/browser/formData').then((wasDeleted) => {
+  //           if (wasDeleted) {
+  //             console.log(
+  //               'Object "/browser/formData" was successfully deleted.'
+  //             );
+  //           } else {
+  //             console.log(
+  //               'Object "/browser/formData" was not found in the cache.'
+  //             );
+  //           }
+  //           this.cachedData = null;
+  //           this.cdr.detectChanges();
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         console.error('Error opening cache:', err);
+  //       });
+  //   } else {
+  //     console.error('Caches API is not available in this environment.');
+  //   }
+  // }
+
+  loadCachedData(): void {
+    if (this.cachedData) {
+      this.form.patchValue(this.cachedData);
+      console.log('Form data loaded from cache:', this.cachedData);
+      this.isVisible = false;
     }
   }
 
-  saveData(value: any) {
+  saveData(value: any): void {
+    if (this.isClearingCache) {
+      console.log('Skipping save operation during cache clearing.');
+      return;
+    }
+
     console.log('Attempting to save data:', value);
     if (navigator.serviceWorker) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((registration) => {
           if (registration.active) {
-            console.log('Sending SAVE_FORM_DATA message to Service Worker...');
             registration.active.postMessage({
               type: 'SAVE_FORM_DATA',
               payload: value,
             });
-          } else {
-            console.log('No active Service Worker registration found.');
+            console.log('Data saved to Service Worker cache:', value);
           }
         });
       });
     }
-  }
-
-  checkCache() {
-    console.log('Checking cache...');
-    caches
-      .open(this.cacheName)
-      .then((cache) => {
-        cache
-          .match('formData')
-          .then((response) => {
-            if (response) {
-              this.showModal = true;
-              response.json().then((data) => {
-                console.log('Cached data:', data);
-              });
-            } else {
-              console.log('No cached data found.');
-            }
-          })
-          .catch((err) => {
-            console.error('Error checking cache:', err);
-          });
-      })
-      .catch((err) => {
-        console.error('Error opening cache:', err);
-      });
   }
 }
